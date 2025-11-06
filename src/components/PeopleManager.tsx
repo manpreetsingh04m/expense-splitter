@@ -1,7 +1,31 @@
-import { initialPeople } from '../initialData';
+import { FormEvent, useState } from 'react';
 
-function PeopleManager() {
-  const people = initialPeople;
+interface PeopleManagerProps {
+  people: string[];
+  onAdd: (name: string) => void;
+  onRemove: (name: string) => void;
+}
+
+function PeopleManager({ people, onAdd, onRemove }: PeopleManagerProps) {
+  const [name, setName] = useState('');
+  const [message, setMessage] = useState<string | null>(null);
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    const trimmed = name.trim();
+    if (!trimmed) {
+      setMessage('Enter a name first');
+      return;
+    }
+    if (people.includes(trimmed)) {
+      setMessage('Already in the group');
+      return;
+    }
+    onAdd(trimmed);
+    setName('');
+    setMessage('Added');
+    setTimeout(() => setMessage(null), 1500);
+  };
 
   return (
     <div className="bg-white rounded-xl p-6 mb-6 shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5">
@@ -9,11 +33,13 @@ function PeopleManager() {
         👥 Manage People
       </h2>
 
-      <form className="flex gap-2 mb-6">
+      <form className="flex gap-2 mb-6" onSubmit={handleSubmit}>
         <input
           type="text"
           placeholder="Enter person's name"
           className="flex-1 px-3 py-2 border-2 border-gray-200 rounded-md text-base transition-colors focus:outline-none focus:border-indigo-500"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
         />
         <button
           type="submit"
@@ -22,6 +48,12 @@ function PeopleManager() {
           Add Person
         </button>
       </form>
+
+      {message && (
+        <p className="text-sm text-green-700 bg-green-50 border border-green-200 rounded px-3 py-2 mb-4">
+          {message}
+        </p>
+      )}
 
       <div className="mt-4">
         <h3 className="text-gray-600 my-2 text-lg">
@@ -39,7 +71,7 @@ function PeopleManager() {
                 className="flex justify-between items-center p-2 mb-1 bg-gray-50 rounded transition-colors hover:bg-gray-100"
               >
                 <span className="font-medium text-gray-800">{person}</span>
-                <button className="bg-transparent text-red-500 px-1 py-1 text-sm border border-transparent transition-colors hover:bg-red-100 hover:border-red-300 rounded">
+                <button onClick={() => { if (window.confirm(`Remove ${person}?`)) onRemove(person); }} className="bg-transparent text-red-500 px-1 py-1 text-sm border border-transparent transition-colors hover:bg-red-100 hover:border-red-300 rounded">
                   ❌
                 </button>
               </li>
