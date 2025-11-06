@@ -18,3 +18,9 @@ export interface SimplifiedDebt {
   to: string;
   amount: number;
 }
+
+export interface PersonTotals {
+  paid: number;
+  owed: number;
+  net: number;
+}
